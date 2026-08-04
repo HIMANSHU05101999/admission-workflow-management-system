@@ -49,10 +49,12 @@ The initial version will include:
 * Workflow stage tracking throughout the on-campus admission process.
 * Physical document workflow tracking.
 * Approval workflow management.
-* Payment verification for manual and online transactions.
+* Manual payment verification by authorized staff.
 * Recording verified payment details.
 * Receipt generation simulation.
-* Workflow management across multiple admission stages.
+* Support for future online payment integration through a modular design.
+
+
 
 ---
 
@@ -63,8 +65,10 @@ The following features are intentionally excluded from Version 1:
 * Online admission application portal.
 * Student document upload and storage.
 * Direct payment processing.
-* Banking or payment gateway integration.
+* Online payment gateway integration.
+* Banking system integration.
 * Integration with the university's ERP or financial systems.
+* Automatic payment verification.
 * Graphical User Interface (GUI).
 * Web application.
 * Mobile application.
@@ -73,6 +77,7 @@ The following features are intentionally excluded from Version 1:
 * User authentication and authorization.
 * Real-time notifications.
 * Cloud deployment.
+
 
 These features are planned for future versions as the project evolves.
 
