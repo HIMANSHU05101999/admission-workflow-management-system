@@ -41,6 +41,12 @@ The system follows a modular architecture where each component is responsible fo
                           │
                           ▼
                    Student Records
+                          │
+                          ▼
+                  Storage Manager
+                          │
+                          ▼
+                     JSON Storage
 
 
 ### Component Responsibilities
@@ -95,3 +101,112 @@ Responsible for maintaining admission-related information for each student.
 * Track workflow status.
 * Maintain payment verification status.
 * Record admission completion.
+
+# Core Entities
+
+The following entities were identified during the business analysis. They represent the primary objects involved in the admission workflow and form the foundation of the system design.
+
+| Entity               | Description                                                                                                |
+| -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Student              | Represents a student participating in the admission process.                                               |
+| Token                | Represents the unique admission token assigned to each student for workflow tracking and queue management. |
+| Workflow Stage       | Represents the current stage of a student's admission journey.                                             |
+| Admission Workflow   | Represents the complete sequence of workflow stages from student arrival to admission completion.          |
+| Queue                | Represents the First Come, First Served (FCFS) queue for a workflow stage.                                 |
+| Waiting Queue        | Represents the queue for students whose processing is temporarily paused due to exceptional circumstances. |
+| Staff Member         | Represents authorized university staff interacting with the system during the admission process.           |
+| Payment Verification | Represents the manual verification of a student's payment before admission completion.                     |
+
+## Design Principle
+
+The system follows a modular design in which each entity has a clearly defined responsibility. During implementation, these entities will be evaluated to determine whether they should be represented as Python classes, enumerations, or supporting data structures.
+
+The objective is to model the admission process accurately while keeping the design simple, maintainable, and extensible for future versions of the system.
+
+# Class Relationships
+
+This section describes how the core classes interact with one another. Each relationship is designed to maintain a clear separation of responsibilities while keeping the system modular and easy to extend.
+
+---
+
+## AdmissionSystem
+
+The `AdmissionSystem` class acts as the central coordinator of the application. It initializes the system, coordinates interactions between components, and controls the overall execution of the admission workflow.
+
+### Relationships
+
+* Coordinates the `WorkflowManager`.
+* Coordinates the `QueueManager`.
+* Coordinates the `StorageManager`.
+
+---
+
+## WorkflowManager
+
+The `WorkflowManager` controls the progression of students through the admission workflow.
+
+### Relationships
+
+* Updates a student's current workflow stage.
+* Uses the `QueueManager` to move students into the appropriate queue for the next stage.
+* Notifies the `StorageManager` (through the `AdmissionSystem`) whenever workflow data needs to be persisted.
+
+---
+
+## QueueManager
+
+The `QueueManager` is responsible for maintaining the admission queues.
+
+### Relationships
+
+* Manages the Main Queue (FCFS).
+* Manages the Waiting Queue for exception cases.
+* Stores and updates student queue positions.
+* Returns the next eligible student for processing.
+* Supports manual queue overrides by authorized staff.
+
+The `QueueManager` does **not** determine the student's next workflow stage. It only manages queue operations.
+
+---
+
+## Student
+
+The `Student` class represents an individual participating in the admission process.
+
+### Relationships
+
+* Stores the student's admission token.
+* Stores the current workflow stage.
+* Stores the payment verification status.
+* Is updated by the `WorkflowManager`.
+* Is managed by the `QueueManager`.
+
+---
+
+## StorageManager
+
+The `StorageManager` provides persistent storage for the application.
+
+### Relationships
+
+* Loads student records from storage.
+* Saves student records.
+* Saves queue data.
+* Saves workflow progress.
+* Operates independently of the business logic, allowing JSON storage to be replaced by a database in future versions without requiring changes to the system's core components.
+
+---
+
+# Relationship Summary
+
+| Source          | Relationship | Target          |
+| --------------- | ------------ | --------------- |
+| AdmissionSystem | Coordinates  | WorkflowManager |
+| AdmissionSystem | Coordinates  | QueueManager    |
+| AdmissionSystem | Coordinates  | StorageManager  |
+| WorkflowManager | Updates      | Student         |
+| WorkflowManager | Uses         | QueueManager    |
+| QueueManager    | Manages      | Student         |
+| StorageManager  | Loads/Saves  | Student Records |
+| StorageManager  | Loads/Saves  | Queue Data      |
+| StorageManager  | Loads/Saves  | Workflow Data   |
