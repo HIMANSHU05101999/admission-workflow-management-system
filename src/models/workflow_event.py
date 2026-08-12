@@ -1,0 +1,15 @@
+from datetime import datetime
+from .enums import WorkflowStage
+
+class WorkflowEvent:
+    def __init__(self, stage, action, processed_by, reason=None):
+        self.__stage=stage
+        self.__action=action
+        self.__timestamp=datetime.today()
+        self.__processed_by=processed_by
+        self.__reason=reason
+    def __str__(self):
+        return f"| Stage: {self.__stage.value} |\n| Action: {self.__action} |\n| Date_Time: {self.__timestamp} |\n| Processed By: {self.__processed_by} |\n| Reason: {self.__reason} |"
+if __name__=="__main__":
+    work=WorkflowEvent(WorkflowStage.REGISTRATION,"ABC","ABC")
+    print(work)
