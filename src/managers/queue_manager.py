@@ -22,7 +22,17 @@ class QueueManager:
         if self.__student:
             token_no=max(token for token in self.__student) + 1 
             return token_no
-        return 1            
+        return 1          
+
+    def next_student(self):
+        if not self.__main_queue:
+             return None
+        
+        student_token=self.__main_queue[0]
+
+        if student_token in self.__student:
+            return self.__student[student_token]
+
     
     def __str__(self):
         return f"Total Student: {self.__student} Next Token: {self.__next_token} Main Queue: {self.__main_queue} Wait Queue: {self.__wait_queue} Re Entry Position: {self.__re_entry_gap}"
