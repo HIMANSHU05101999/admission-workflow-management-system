@@ -14,6 +14,7 @@ class QueueType(Enum):
 
 class StudentStatus(Enum):
     ACTIVE = "Active"
+    IN_PROGRESS = "In Progress"
     WAITING = "Waiting"
     COMPLETED = "Completed"
     

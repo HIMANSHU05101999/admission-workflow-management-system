@@ -1,5 +1,5 @@
-from .enums import WorkflowStage,QueueType,StudentStatus,PaymentStatus
-from .workflow_event import WorkflowEvent
+from models.enums import WorkflowStage,QueueType,StudentStatus,PaymentStatus
+from models.workflow_event import WorkflowEvent
 
 class Student:
     def __init__(self, application_id):
@@ -10,6 +10,14 @@ class Student:
         self.__queue_type=QueueType.MAIN
         self.__payment_status=PaymentStatus.PENDING
         self.__history=[]
+
+    @property
+    def status(self):
+        return self.__status
+
+    @status.setter
+    def status(self, val):
+        self.__status=val
 
     @property
     def queue_token(self):
@@ -26,7 +34,7 @@ class Student:
     def assign_token(self, token):
         self.__queue_token=token
 
-    def add_event(self,event):
+    def add_event(self, event):
         if isinstance(event,WorkflowEvent):
             self.__history.append(event)
         else:
