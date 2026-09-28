@@ -7,11 +7,15 @@ class WorkflowEvent:
             self.__stage=stage
         else:
             raise TypeError ("Stage does not belong to WorkflowSatge")
-        self.__stage=stage
+
         self.__action=action
         self.__timestamp=datetime.today()
         self.__processed_by=processed_by
         self.__reason=reason
+
+    @property
+    def timestamp(self):
+        return self.__timestamp
 
 
     def __str__(self):

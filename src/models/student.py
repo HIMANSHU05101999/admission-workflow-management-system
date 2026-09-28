@@ -12,6 +12,17 @@ class Student:
         self.__history=[]
 
     @property
+    def current_stage(self):
+        return self.__current_stage
+
+    @current_stage.setter
+    def current_stage(self, val):
+        if isinstance(val,WorkflowStage):
+            self.__current_stage=val
+        else:
+            raise TypeError("Instance not of WorkflowStage")
+
+    @property
     def status(self):
         return self.__status
 
