@@ -1,5 +1,6 @@
 from models.student import Student
 from models.enums import StudentStatus, WorkflowStage
+from models.workflow_event import WorkflowEvent
 class QueueManager:
 
     STAGE_TRANSITION={WorkflowStage.REGISTRATION : WorkflowStage.EXAM,
@@ -19,12 +20,16 @@ class QueueManager:
     def student(self):
          return self.__students.copy()
 
-    def add_student(self, student):
+    def add_student(self, student, processed_by = "System"):
         token = self.__next_token
         student.assign_token(token)
         self.__students[token] = student
         self.__main_queue.append(token)
         self.__next_token += 1
+
+        work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Student Added", processed_by)
+        self.__students[token].add_event(work_flow_update)
+
 
     def token_generator(self):
         if self.__students:
@@ -32,31 +37,62 @@ class QueueManager:
             return token_no
         return 1          
 
-    def next_student(self):
+    def next_student(self, processed_by="System"):
         if not self.__main_queue:
              return None
 
         for token in self.__main_queue:
             if self.__students[token].status == StudentStatus.ACTIVE:
                 self.__students[token].status = StudentStatus.IN_PROGRESS
+                work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Next Student Called", processed_by)
+                self.__students[token].add_event(work_flow_update)
                 return self.__students[token]
 
-    def complete_stage(self, token, processed_by):
+        
+
+    def complete_stage(self, token, processed_by="System"):
         if token not in self.__students:
             return None
         if self.__students[token].status == StudentStatus.ACTIVE or self.__students[token].status == StudentStatus.COMPLETED:
             raise ValueError("Studen in Active or Completed state")
-        print(self.student)
+        #print(self.student)
         if self.__students[token].current_stage in QueueManager.STAGE_TRANSITION:
             self.__students[token].current_stage = QueueManager.STAGE_TRANSITION[self.__students[token].current_stage]
             if self.__students[token].current_stage == WorkflowStage.COMPLETED:
                 self.__students[token].status = StudentStatus.COMPLETED
             else:    
                 self.__students[token].status = StudentStatus.ACTIVE
+        work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Advanced to Next Stage", processed_by)
+        self.__students[token].add_event(work_flow_update)
 
-        
+        #print(self.student)
+    
+    def hold_student(self, token, processed_by="System"):
+        if token not in self.__students:
+            return None
 
-        print(self.student)
+        if token not in self.__wait_queue:
+            self.__wait_queue.append(token)
+
+        if token in self.__main_queue:
+            self.__main_queue.remove(token)
+
+        self.__students[token].status = StudentStatus.WAITING
+
+        work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Moved to Waiting Queue", processed_by)
+        self.__students[token].add_event(work_flow_update)
+
+    def resume_student(self, token, processed_by="System"):
+        if (token not in self.__students or token not in self.__wait_queue) :
+            return None
+    
+        self.__main_queue.insert(self.__re_entry_gap,token)
+        self.__wait_queue.remove(token)
+
+        self.__students[token].status = StudentStatus.ACTIVE
+
+        work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Moved to Main Queue", processed_by)
+        self.__students[token].add_event(work_flow_update)
 
                     
 
@@ -81,7 +117,7 @@ if __name__ == "__main__":
     s3 = Student("APP003")
 
     # 2. Add them to the queue
-    qm.add_student(s1)
+    qm.add_student(s1, "John")
     #qm.add_student(s2)
     #qm.add_student(s3)
 

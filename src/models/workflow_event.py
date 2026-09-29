@@ -9,7 +9,7 @@ class WorkflowEvent:
             raise TypeError ("Stage does not belong to WorkflowSatge")
 
         self.__action=action
-        self.__timestamp=datetime.today()
+        self.__timestamp=datetime.now()
         self.__processed_by=processed_by
         self.__reason=reason
 
