@@ -56,6 +56,18 @@ class Student:
 
     def __repr__(self):
         return f"| Application ID: {self.__application_id} |\n| Token: {self.__queue_token} |\n| Current Stage: {self.__current_stage.value} |\n| Status: {self.__status.value} |\n| Queue Type: {self.__queue_type.value} |\n| Payment Status: {self.__payment_status.value} |\n| History: {self.__history} |"
+
+    def to_dict(self):
+        history_list=[item.to_dict() for item in self.__history]
+
+        return{"application_id" : self.__application_id,
+               "token" : self.__queue_token,
+               "current_stage" : self.__current_stage.value,
+               "status" : self.__status.value,
+               "queue_type" : self.__queue_type.value,
+               "payment_status" : self.__payment_status.value,
+               "history" : history_list
+               }
         
 if __name__=="__main__":
     we=WorkflowEvent(WorkflowStage.REGISTRATION,"ABC","ABC")
@@ -65,6 +77,8 @@ if __name__=="__main__":
     s1.history.clear()
     print(s1.history)
     s2=Student("AAP2")
+
+    print(s2.to_dict())
 
     #print(s1)
     #print(s2)

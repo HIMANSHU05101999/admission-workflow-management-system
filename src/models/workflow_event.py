@@ -6,7 +6,7 @@ class WorkflowEvent:
         if isinstance(stage,WorkflowStage):
             self.__stage=stage
         else:
-            raise TypeError ("Stage does not belong to WorkflowSatge")
+            raise TypeError ("Stage does not belong to WorkflowStage")
 
         self.__action=action
         self.__timestamp=datetime.now()
@@ -24,6 +24,14 @@ class WorkflowEvent:
     def __repr__(self):
         return f"| Stage: {self.__stage.value} |\n| Action: {self.__action} |\n| Date/Time: {self.__timestamp} |\n| Processed By: {self.__processed_by} |\n| Reason: {self.__reason} |"
 
+    def to_dict(self):
+        return {"stage" : self.__stage.value,
+                "action" : self.__action,
+                "timestamp" : self.__timestamp.isoformat(),
+                "processed_by" : self.__processed_by,
+                "reason" : self.__reason}
+
 if __name__=="__main__":
     work=WorkflowEvent(WorkflowStage.REGISTRATION,"ABC","ABC")
     print(work)
+    print(work.to_dict())

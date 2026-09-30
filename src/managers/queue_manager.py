@@ -67,7 +67,7 @@ class QueueManager:
 
         #print(self.student)
     
-    def hold_student(self, token, processed_by="System"):
+    def hold_student(self, token, processed_by="System", reason = None):
         if token not in self.__students:
             return None
 
@@ -79,7 +79,8 @@ class QueueManager:
 
         self.__students[token].status = StudentStatus.WAITING
 
-        work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Moved to Waiting Queue", processed_by)
+        work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Moved to Waiting Queue", processed_by, reason)
+
         self.__students[token].add_event(work_flow_update)
 
     def resume_student(self, token, processed_by="System"):
@@ -93,20 +94,23 @@ class QueueManager:
 
         work_flow_update=WorkflowEvent(self.__students[token].current_stage, "Moved to Main Queue", processed_by)
         self.__students[token].add_event(work_flow_update)
-
-                    
-
-
-
-                
-        
-
         
     def __str__(self):
         return f"Total Student: {self.__students} Next Token: {self.__next_token} Main Queue: {self.__main_queue} Wait Queue: {self.__wait_queue} Re Entry Position: {self.__re_entry_gap}"
 
     def __repr__(self):
             return f"Total Student: {self.__students}  Next Token: {self.__next_token} Main Queue: {self.__main_queue} Wait Queue: {self.__wait_queue} Re Entry Position: {self.__re_entry_gap}"
+
+    def to_dict(self):
+        stud={f"{key}" : val.to_dict() for key, val in self.__students.items()}
+    
+        return{
+                "total_student" : stud,
+                "next_token" : self.__next_token,
+                "main_queue" : self.__main_queue,
+                "wait_queue" : self.__wait_queue,
+                "re_entry_pos" : self.__re_entry_gap
+              }
     
 if __name__ == "__main__":
     qm = QueueManager()
@@ -118,8 +122,8 @@ if __name__ == "__main__":
 
     # 2. Add them to the queue
     qm.add_student(s1, "John")
-    #qm.add_student(s2)
-    #qm.add_student(s3)
+    qm.add_student(s2, "Sam")
+    qm.add_student(s3, "Bhaskar")
 
     ##print("--- Initial Queue State ---")
     #print(f"Main Queue Tokens: {qm}")
@@ -131,13 +135,13 @@ if __name__ == "__main__":
     #print(f"Status: {called_1.status.value}")
 
     # 4. Call second student
-    #called_2 = qm.next_student()
+    called_2 = qm.next_student()
     #print("\n--- Call 2 ---")
     #print(f"Called Token: {called_2.queue_token}")
     #print(f"Status: {called_2.status.value}")
 
     # 5. Call third student
-    #called_3 = qm.next_student()
+    called_3 = qm.next_student()
     #print("\n--- Call 3 ---")
     #print(f"Called Token: {called_3.queue_token}")
     #print(f"Status: {called_3.status.value}")
@@ -153,7 +157,12 @@ if __name__ == "__main__":
     print()
     print("---Debuging---")
     print()
-    qm.complete_stage(test_token,"John")
+    qm.hold_student(2)
+    qm.resume_student(2)
+    qm.complete_stage(3,"John")
+    print(qm.to_dict())
+
+
 
 
     
